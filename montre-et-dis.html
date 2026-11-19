@@ -89,7 +89,7 @@ body.full #stage{position:fixed;inset:0;z-index:5;border-radius:0;border:0}
 </head>
 <body>
 <header>
-  <span class="brand">Montre et dis <small style="font-weight:400;color:var(--muted)">v8</small></span>
+  <span class="brand">Montre et dis <small style="font-weight:400;color:var(--muted)">v9</small></span>
   <nav>
     <button data-go="1"><b>1</b><span data-t="s1"></span></button>
     <button data-go="2"><b>2</b><span data-t="s2"></span></button>
@@ -127,7 +127,7 @@ body.full #stage{position:fixed;inset:0;z-index:5;border-radius:0;border:0}
   <div class="tools" id="tb">
     <span id="grip" title="Déplacer / Move">⠿</span>
     <button id="bPrev" aria-label="◀">◀</button><button id="bNx" aria-label="▶">▶</button><span class="sep"></span>
-    <button data-tool="pen" data-t="pen"></button><button data-tool="arrow" data-t="arrow"></button><button data-tool="box" data-t="box"></button><button data-tool="text" data-t="text"></button><button data-tool="note" data-t="note"></button>
+    <button data-tool="select" data-t="sel"></button><button data-tool="pen" data-t="pen"></button><button data-tool="arrow" data-t="arrow"></button><button data-tool="box" data-t="box"></button><button data-tool="text" data-t="text"></button><button data-tool="note" data-t="note"></button>
     <span class="sep"></span><span id="sws" class="row" style="gap:6px"></span>
     <span class="sep"></span><button id="bUndo" data-t="undo"></button><button id="bMic" data-t="mic" aria-pressed="false"></button>
     <span class="interim"></span><span class="sep"></span>
@@ -174,7 +174,7 @@ const CN={fr:['rouge','orange','vert','bleu','violet'],en:['red','orange','green
 const FONT='system-ui,"Segoe UI",sans-serif';
 const S={who:'',lang:'fr',steps:[],cur:0,tool:'pen',color:COL[0],view:1,live:false,mic:false,ready:Promise.resolve()};
 window.__S=S;
-const T={fr:{s1:'Montrer',s2:'Expliquer',s3:'Prompt',who:'Ton nom',snapS:'Capture',stopS:'Fin',pickProj:'— Choisir un projet —',chat:'Ouvrir dans Claude (chat) avec le prompt',cimg:'Copier l\'image ',copyAll:'Copier le prompt + les images',imgsB:'Copier seulement les images',allCopied:'Prompt et images copiés : colle avec Ctrl+V. Si seul le texte arrive, clique « Copier seulement les images » et colle encore.',pasteB:'Coller l\'image (Ctrl+V)',fileB:'Choisir un fichier',noclip:'Aucune image dans le presse-papiers.',fitB:'Ajuster',bigB:'Agrandir l\'image / modifier',pop:'Fenêtre d\'édition',closeW:'Fermer la fenêtre',cimg1:'Copier l\'image',popBlocked:'Autorise les pop-ups pour ce site.',addProj:'➕ Ajouter mes dossiers de projets…',proj:'Projet : tape ou choisis dans la liste',root:'Choisir le dossier qui contient mes projets',liveHint:'Choisis l\'onglet, la fenêtre ou l\'écran à partager. Un petit bouton Capture et un bouton Fin flottent par-dessus.',ckOpen:'Ouvrir une session Claude à la fin',send:'Envoyer dans Claude Code',needProj:'Choisis d\'abord le projet.',full:'Plein écran',small:'Réduire',cap:'Capture d\'écran',
+const T={fr:{s1:'Montrer',s2:'Expliquer',s3:'Prompt',who:'Ton nom',snapS:'Capture',stopS:'Fin',pickProj:'— Choisir un projet —',chat:'Ouvrir dans Claude (chat) avec le prompt',cimg:'Copier l\'image ',copyAll:'Copier le prompt + les images',imgsB:'Copier seulement les images',allCopied:'Prompt et images copiés : colle avec Ctrl+V. Si seul le texte arrive, clique « Copier seulement les images » et colle encore.',pasteB:'Coller l\'image (Ctrl+V)',fileB:'Choisir un fichier',noclip:'Aucune image dans le presse-papiers.',fitB:'Ajuster',bigB:'Agrandir l\'image / modifier',sel:'Sélection',pop:'Fenêtre d\'édition',closeW:'Fermer la fenêtre',cimg1:'Copier l\'image',popBlocked:'Autorise les pop-ups pour ce site.',addProj:'➕ Ajouter mes dossiers de projets…',proj:'Projet : tape ou choisis dans la liste',root:'Choisir le dossier qui contient mes projets',liveHint:'Choisis l\'onglet, la fenêtre ou l\'écran à partager. Un petit bouton Capture et un bouton Fin flottent par-dessus.',ckOpen:'Ouvrir une session Claude à la fin',send:'Envoyer dans Claude Code',needProj:'Choisis d\'abord le projet.',full:'Plein écran',small:'Réduire',cap:'Capture d\'écran',
 h1:'Montre ce que tu veux changer',sub1:'Aucune ligne à écrire. Choisis une façon de montrer, puis parle et dessine.',
 liveT:'Démonstration en direct',liveD:'Partage la fenêtre de ton application, utilise-la et parle. Chaque phrase devient une étape avec son image.',
 shotT:'Capture d\'écran',shotD:'Une image de ton application, à annoter juste après.',
@@ -182,7 +182,7 @@ fileT:'Image existante',fileD:'Colle avec Ctrl+V, dépose un fichier ici ou cliq
 ctx:'Nom du programme (facultatif)',open:'Ouvrir une session reçue',
 rec:'Enregistrement en cours',recHelp:'Va dans ton application, montre et parle. Le petit bouton flottant reste au-dessus de tout : clique-le, ou dis « capture », pour prendre une photo. Dis « OK prompt » ou clique Terminer quand tu as fini.',steps:'étape(s)',snap:'Capturer maintenant',stop:'Terminer',
 pen:'Crayon',arrow:'Flèche',box:'Cadre',text:'Texte',note:'Note',undo:'Annuler',mic:'Micro',add:'Ajouter une image',del:'Supprimer l\'image',next:'Créer le prompt →',
-said:'Ce que tu as dit',saidPh:'Active le micro et parle, ou écris ici.',notes:'Notes',hint:'Clic droit sur l\'image pour poser une note numérotée.',
+said:'Ce que tu as dit',saidPh:'Active le micro et parle, ou écris ici.',notes:'Notes',hint:'Clic droit sur l\'image pour poser une note. Outil Sélection : clique un élément pour le déplacer, tire les poignées des flèches et cadres, double-clic pour changer le texte, clique une couleur pour la changer, Suppr pour l\'effacer.',
 phNote:'Ta note (tu peux la dicter)',phText:'Texte à écrire sur l\'image',ok:'OK',rm:'Supprimer',
 h3:'Ton prompt est prêt',sub3:'Relis-le si tu veux, puis envoie-le à Claude.',
 copy:'Copier le prompt',dir:'Enregistrer dans le dossier du projet',dlb:'Télécharger les fichiers',sess:'Enregistrer la session pour quelqu\'un d\'autre',
@@ -191,7 +191,7 @@ copied:'Prompt copié',imgCopied:'Image copiée',copyImg:'Cliquer pour copier l\
 need:'Ajoute d\'abord une image.',noscreen:'Ce navigateur ne permet pas le partage d\'écran. Utilise Chrome ou Edge, ou colle une capture.',
 nosr:'Dictée indisponible dans ce navigateur. Utilise Chrome ou Edge, ou la dictée Windows (Win+H).',micdenied:'Micro refusé. Autorise-le dans le navigateur.',
 nodir:'Dossier indisponible dans ce navigateur : les fichiers sont téléchargés.',sayIt:'Dis à Claude Code : « Fais le retour du dossier ',bad:'Fichier de session illisible.'},
-en:{s1:'Show',s2:'Explain',s3:'Prompt',who:'Your name',snapS:'Capture',stopS:'Finish',pickProj:'— Pick a project —',chat:'Open in Claude (chat) with the prompt',cimg:'Copy image ',copyAll:'Copy the prompt + images',imgsB:'Copy only the images',allCopied:'Prompt and images copied: paste with Ctrl+V. If only the text arrives, click "Copy only the images" and paste again.',pasteB:'Paste image (Ctrl+V)',fileB:'Choose a file',noclip:'No image in the clipboard.',fitB:'Fit',bigB:'Enlarge image / edit',pop:'Editing window',closeW:'Close window',cimg1:'Copy image',popBlocked:'Allow pop-ups for this site.',addProj:'➕ Add my project folders…',proj:'Project: type or pick from the list',root:'Choose the folder that holds my projects',liveHint:'Pick the tab, window or screen to share. A small Capture button and a Finish button float on top.',ckOpen:'Open a Claude session at the end',send:'Send to Claude Code',needProj:'Pick the project first.',full:'Full screen',small:'Shrink',cap:'Screenshot',
+en:{s1:'Show',s2:'Explain',s3:'Prompt',who:'Your name',snapS:'Capture',stopS:'Finish',pickProj:'— Pick a project —',chat:'Open in Claude (chat) with the prompt',cimg:'Copy image ',copyAll:'Copy the prompt + images',imgsB:'Copy only the images',allCopied:'Prompt and images copied: paste with Ctrl+V. If only the text arrives, click "Copy only the images" and paste again.',pasteB:'Paste image (Ctrl+V)',fileB:'Choose a file',noclip:'No image in the clipboard.',fitB:'Fit',bigB:'Enlarge image / edit',sel:'Select / move',pop:'Editing window',closeW:'Close window',cimg1:'Copy image',popBlocked:'Allow pop-ups for this site.',addProj:'➕ Add my project folders…',proj:'Project: type or pick from the list',root:'Choose the folder that holds my projects',liveHint:'Pick the tab, window or screen to share. A small Capture button and a Finish button float on top.',ckOpen:'Open a Claude session at the end',send:'Send to Claude Code',needProj:'Pick the project first.',full:'Full screen',small:'Shrink',cap:'Screenshot',
 h1:'Show what you want to change',sub1:'Nothing to write. Pick a way to show it, then talk and draw.',
 liveT:'Live demo',liveD:'Share your app window, use it and talk. Each sentence becomes a step with its picture.',
 shotT:'Screenshot',shotD:'One picture of your app, to mark up right after.',
@@ -199,7 +199,7 @@ fileT:'Existing image',fileD:'Paste with Ctrl+V, drop a file here or click to ch
 ctx:'Program name (optional)',open:'Open a session you received',
 rec:'Recording',recHelp:'Go to your app, show and talk. The small floating button stays on top of everything: click it, or say "capture", to take a picture. Say "OK prompt" or click Finish when you are done.',steps:'step(s)',snap:'Capture now',stop:'Finish',
 pen:'Pen',arrow:'Arrow',box:'Box',text:'Text',note:'Note',undo:'Undo',mic:'Mic',add:'Add an image',del:'Delete image',next:'Create the prompt →',
-said:'What you said',saidPh:'Turn the mic on and talk, or type here.',notes:'Notes',hint:'Right-click the image to drop a numbered note.',
+said:'What you said',saidPh:'Turn the mic on and talk, or type here.',notes:'Notes',hint:'Right-click the image to drop a note. Select tool: click an item to move it, drag the handles of arrows and boxes, double-click to edit text, click a colour to recolour it, Delete to remove it.',
 phNote:'Your note (you can dictate it)',phText:'Text to write on the image',ok:'OK',rm:'Delete',
 h3:'Your prompt is ready',sub3:'Read it over if you like, then send it to Claude.',
 copy:'Copy the prompt',dir:'Save to the project folder',dlb:'Download the files',sess:'Save the session for someone else',
@@ -213,7 +213,7 @@ try{S.who=localStorage.getItem('who')||'';S.proj=localStorage.getItem('proj')||'
 function keep(k,v){try{localStorage.setItem(k,v)}catch(e){}}
 function applyLang(){document.documentElement.lang=S.lang;$$('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));$$('[data-tp]').forEach(e=>e.placeholder=t(e.dataset.tp));$('#bFull').textContent=t(S.full?'small':'full');$('#lang').textContent=S.lang=='fr'?'EN':'FR'}
 let tt;function toast(m){const e=$('#toast');e.textContent=m;e.hidden=false;clearTimeout(tt);tt=setTimeout(()=>e.hidden=true,4500)}
-function ui(){$$('[data-tool]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool==S.tool));$$('.sw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c==S.color));$('#bMic').setAttribute('aria-pressed',S.mic);$$('nav button').forEach(b=>b.setAttribute('aria-current',b.dataset.go==S.view));if(!S.mic)$$('.interim').forEach(e=>e.textContent='')}
+function ui(){$('#cv').style.cursor=S.tool=='select'?'default':'crosshair';$$('[data-tool]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool==S.tool));$$('.sw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c==S.color));$('#bMic').setAttribute('aria-pressed',S.mic);$$('nav button').forEach(b=>b.setAttribute('aria-current',b.dataset.go==S.view));if(!S.mic)$$('.interim').forEach(e=>e.textContent='')}
 function liveUI(on){$('#bSnap2').disabled=$('#bStop2').disabled=!on;$('#bLive').disabled=on;$('#liveSt').textContent=on?S.steps.length+' '+t('steps'):''}
 function bigWin(){if(S.ed)return;try{moveTo(0,0);resizeTo(screen.availWidth,screen.availHeight)}catch(e){}}
 function smallWin(){if(S.ed)return;try{resizeTo(480,720)}catch(e){}}
@@ -281,7 +281,30 @@ function draw(c,st,extra){const u=U(st);c.drawImage(st.cv,0,0);c.lineCap=c.lineJ
       s.text.split('\n').forEach((l,i)=>{c.strokeText(l,s.a[0],s.a[1]+i*21*u);c.fillText(l,s.a[0],s.a[1]+i*21*u)})}}
   st.notes.forEach((n,i)=>{const r=13*u;c.beginPath();c.arc(n.x,n.y,r,0,7);c.fillStyle=n.c;c.fill();c.lineWidth=2.5*u;c.strokeStyle='#fff';c.stroke();
     c.fillStyle='#fff';c.font=`700 ${15*u}px ${FONT}`;c.textAlign='center';c.textBaseline='middle';c.fillText(i+1,n.x,n.y+u)});c.textAlign='left'}
-function paint(){const st=S.steps[S.cur];if(st)draw(cx,st,cur)}
+function paint(){const st=S.steps[S.cur];if(!st)return;draw(cx,st,cur);if(S.tool=='select'&&owns(st,S.sel))overlay(st)}
+/* ---------- sélection ---------- */
+let selDrag=null;
+const owns=(st,it)=>!!it&&(st.shapes.includes(it)||st.notes.includes(it));
+const segD=(p,a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],l=dx*dx+dy*dy,k=l?Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/l)):0;return Math.hypot(p[0]-a[0]-k*dx,p[1]-a[1]-k*dy)};
+function bbox(it,st){const u=U(st);
+  if(it.k===undefined){const r=13*u;return[it.x-r,it.y-r,it.x+r,it.y+r]}
+  if(it.k=='text'){cx.font=`600 ${17*u}px ${FONT}`;const L=it.text.split('\n');return[it.a[0],it.a[1],it.a[0]+Math.max(...L.map(l=>cx.measureText(l).width)),it.a[1]+L.length*21*u]}
+  const P=it.k=='pen'?it.p:[it.a,it.b],xs=P.map(q=>q[0]),ys=P.map(q=>q[1]);return[Math.min(...xs),Math.min(...ys),Math.max(...xs),Math.max(...ys)]}
+function hitItem(p,st){const tol=10*U(st),all=[...st.shapes,...st.notes].reverse();
+  all.sort((a,b)=>(b.k===undefined)-(a.k===undefined));   // notes first
+  return all.find(it=>{const k=it.k;
+    if(k=='pen'){for(let i=1;i<it.p.length;i++)if(segD(p,it.p[i-1],it.p[i])<tol)return true;return false}
+    if(k=='arrow')return segD(p,it.a,it.b)<tol;
+    if(k=='box'){const[x0,y0,x1,y1]=bbox(it,st);return p[0]>x0-tol&&p[0]<x1+tol&&p[1]>y0-tol&&p[1]<y1+tol&&!(p[0]>x0+tol&&p[0]<x1-tol&&p[1]>y0+tol&&p[1]<y1-tol)}
+    const[x0,y0,x1,y1]=bbox(it,st);return p[0]>=x0-tol&&p[0]<=x1+tol&&p[1]>=y0-tol&&p[1]<=y1+tol})||null}
+const handles=it=>it&&(it.k=='arrow'||it.k=='box')?[it.a,it.b]:[];
+function overlay(st){const u=U(st),it=S.sel,[x0,y0,x1,y1]=bbox(it,st),g=6*u;cx.save();cx.setLineDash([6*u,4*u]);cx.lineWidth=2*u;cx.strokeStyle='#0a84ff';cx.strokeRect(x0-g,y0-g,x1-x0+2*g,y1-y0+2*g);cx.setLineDash([]);
+  for(const h of handles(it)){cx.fillStyle='#fff';cx.fillRect(h[0]-5*u,h[1]-5*u,10*u,10*u);cx.strokeRect(h[0]-5*u,h[1]-5*u,10*u,10*u)}cx.restore()}
+function moveIt(it,dx,dy){if(it.k===undefined){it.x+=dx;it.y+=dy}else if(it.k=='pen')it.p=it.p.map(q=>[q[0]+dx,q[1]+dy]);else{it.a=[it.a[0]+dx,it.a[1]+dy];if(it.b)it.b=[it.b[0]+dx,it.b[1]+dy]}}
+function selDown(e,p,st){const u=U(st);
+  if(owns(st,S.sel)){const i=handles(S.sel).findIndex(h=>Math.hypot(h[0]-p[0],h[1]-p[1])<10*u);if(i>=0){selDrag={h:i,it:S.sel};cv.setPointerCapture(e.pointerId);return}}
+  S.sel=hitItem(p,st);if(S.sel){selDrag={it:S.sel,last:p};cv.setPointerCapture(e.pointerId)}paint()}
+function selMove(e){const p=pt(e),d=selDrag;if(d.h!==undefined)d.it[d.h?'b':'a']=p;else{moveIt(d.it,p[0]-d.last[0],p[1]-d.last[1]);d.last=p}paint()}
 function fit(){const st=S.steps[S.cur];if(!st)return;const b=$('#stage').getBoundingClientRect(),k=Math.min((b.width-24)/st.w,(b.height-24)/st.h,2)*(S.zoom||1);
   cv.width=st.w;cv.height=st.h;cv.style.width=Math.max(40,st.w*k)+'px';cv.style.height=Math.max(40,st.h*k)+'px';paint()}
 function film(){const f=$('#film');f.innerHTML='';S.steps.forEach((st,i)=>{const b=document.createElement('button'),c=document.createElement('canvas'),k=220/st.w;
@@ -299,12 +322,12 @@ function openPop(e,p,kind,item){pop={kind,p,item};const el=$('#pop'),a=$('#popt'
 function closePop(save){if(!pop)return;const st=S.steps[S.cur],x=$('#popt').value.trim(),{kind,p,item}=pop;pop=null;$('#pop').hidden=true;
   if(save&&x&&st){if(item)item.text=x;else{const it=kind=='note'?{x:p[0],y:p[1],text:x,who:S.who,c:S.color}:{k:'text',c:S.color,a:p,text:x};(kind=='note'?st.notes:st.shapes).push(it);st.log.push(it)}}
   renderSide();paint();film()}
-cv.addEventListener('pointerdown',e=>{const st=S.steps[S.cur];if(!st||e.button!==0)return;closePop(true);const p=pt(e);
+cv.addEventListener('pointerdown',e=>{const st=S.steps[S.cur];if(!st||e.button!==0)return;closePop(true);const p=pt(e);if(S.tool=='select')return selDown(e,p,st);
   const hit=st.notes.find(n=>Math.hypot(n.x-p[0],n.y-p[1])<16*U(st));if(hit)return openPop(e,p,'note',hit);
   if(S.tool=='note'||S.tool=='text')return openPop(e,p,S.tool);
   cv.setPointerCapture(e.pointerId);cur=S.tool=='pen'?{k:'pen',c:S.color,p:[p]}:{k:S.tool,c:S.color,a:p,b:p}});
-cv.addEventListener('pointermove',e=>{if(!cur)return;const p=pt(e);if(cur.k=='pen')cur.p.push(p);else cur.b=p;paint()});
-function endStroke(){if(!cur)return;const st=S.steps[S.cur],ok=cur.k=='pen'?cur.p.length>2:Math.hypot(cur.b[0]-cur.a[0],cur.b[1]-cur.a[1])>4;if(ok&&st){st.shapes.push(cur);st.log.push(cur)}cur=null;paint();film()}
+cv.addEventListener('pointermove',e=>{if(selDrag)return selMove(e);if(!cur)return;const p=pt(e);if(cur.k=='pen')cur.p.push(p);else cur.b=p;paint()});
+function endStroke(){if(selDrag){selDrag=null;film();return}if(!cur)return;const st=S.steps[S.cur],ok=cur.k=='pen'?cur.p.length>2:Math.hypot(cur.b[0]-cur.a[0],cur.b[1]-cur.a[1])>4;if(ok&&st){st.shapes.push(cur);st.log.push(cur)}cur=null;paint();film()}
 cv.addEventListener('pointerup',endStroke);cv.addEventListener('pointercancel',endStroke);
 cv.addEventListener('contextmenu',e=>{e.preventDefault();if(S.steps[S.cur]){closePop(true);openPop(e,pt(e),'note')}});
 function undo(){const st=S.steps[S.cur];if(!st||!st.log.length)return;drop(st,st.log[st.log.length-1]);renderSide();paint();film()}
@@ -373,9 +396,9 @@ async function openSess(file){try{const d=JSON.parse(await file.text());if(d.ctx
     if(S.steps.length)go(2)}catch(e){toast(t('bad'))}}
 
 /* ---------- branchements ---------- */
-COL.forEach(c=>{const b=document.createElement('button');b.className='sw';b.dataset.c=c;b.style.background=c;b.setAttribute('aria-label',c);b.onclick=()=>{S.color=c;ui()};$('#sws').append(b)});
+COL.forEach(c=>{const b=document.createElement('button');b.className='sw';b.dataset.c=c;b.style.background=c;b.setAttribute('aria-label',c);b.onclick=()=>{S.color=c;const st=S.steps[S.cur];if(S.tool=='select'&&st&&owns(st,S.sel)){S.sel.c=c;paint();film()}ui()};$('#sws').append(b)});
 $$('nav button').forEach(b=>b.onclick=()=>{if(S.live)stopLive();go(+b.dataset.go)});
-$$('[data-tool]').forEach(b=>b.onclick=()=>{S.tool=b.dataset.tool;ui()});
+$$('[data-tool]').forEach(b=>b.onclick=()=>{closePop(true);S.tool=b.dataset.tool;if(S.tool!='select')S.sel=null;ui();paint()});
 $('#who').value=S.who;$('#who').oninput=e=>{S.who=e.target.value.trim();keep('who',S.who)};
 $('#lang').onclick=()=>{S.lang=S.lang=='fr'?'en':'fr';keep('lang',S.lang);applyLang();if(S.mic&&!S.live){micOff();micOn()}if(S.view==3)S.ready=buildOut()};
 $('#bLive').onclick=startLive;$('#bStop').onclick=stopLive;$('#bSnap').onclick=()=>{q=q.then(()=>snap()).catch(()=>{})};
@@ -420,9 +443,11 @@ $('#bChat').onclick=async()=>{S.ready=buildOut();await S.ready;const x=$('#out')
 function setFull(on){S.full=on;document.body.classList.toggle('full',on);$('#bFull').textContent=t(on?'small':'full');
   try{if(on)document.documentElement.requestFullscreen().then(()=>{S.nat=true}).catch(()=>{});else{S.nat=false;if(document.fullscreenElement)document.exitFullscreen().catch(()=>{})}}catch(e){}
   requestAnimationFrame(()=>{if(S.view==2)fit()})}
-cv.addEventListener('dblclick',()=>setFull(!S.full));
+cv.addEventListener('dblclick',e=>{const st=S.steps[S.cur];if(st&&S.tool=='select'){const q=pt(e),it=hitItem(q,st);if(it&&it.text!==undefined){S.sel=it;paint();return openPop(e,q,it.k=='text'?'text':'note',it)}}setFull(!S.full)});
 addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&S.nat&&S.full){S.nat=false;setFull(false)}});
-addEventListener('keydown',e=>{if(e.key=='Escape'&&S.full&&!pop&&!S.ed)setFull(false)});
+addEventListener('keydown',e=>{if(e.key=='Escape'&&S.full&&!pop&&!S.ed&&!S.sel)setFull(false);
+  const st=S.steps[S.cur];if(S.view==2&&st&&owns(st,S.sel)&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){
+    if(e.key=='Delete'||e.key=='Backspace'){e.preventDefault();drop(st,S.sel);S.sel=null;renderSide();paint();film()}else if(e.key=='Escape'){S.sel=null;paint()}}});
 (()=>{const tb=$('#tb'),g=$('#grip');let d=null;
   g.onpointerdown=e=>{const r=tb.getBoundingClientRect();tb.style.transform='none';tb.style.left=r.left+'px';tb.style.top=r.top+'px';d=[e.clientX-r.left,e.clientY-r.top];g.setPointerCapture(e.pointerId)};
   g.onpointermove=e=>{if(!d)return;const r=tb.getBoundingClientRect();tb.style.left=Math.max(0,Math.min(e.clientX-d[0],innerWidth-r.width))+'px';tb.style.top=Math.max(0,Math.min(e.clientY-d[1],innerHeight-r.height))+'px'};
