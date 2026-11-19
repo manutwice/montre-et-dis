@@ -89,7 +89,7 @@ body.full #stage{position:fixed;inset:0;z-index:5;border-radius:0;border:0}
 </head>
 <body>
 <header>
-  <span class="brand">Montre et dis <small style="font-weight:400;color:var(--muted)">v7</small></span>
+  <span class="brand">Montre et dis <small style="font-weight:400;color:var(--muted)">v8</small></span>
   <nav>
     <button data-go="1"><b>1</b><span data-t="s1"></span></button>
     <button data-go="2"><b>2</b><span data-t="s2"></span></button>
@@ -142,7 +142,7 @@ body.full #stage{position:fixed;inset:0;z-index:5;border-radius:0;border:0}
       <label for="said" data-t="said"></label><textarea id="said" data-tp="saidPh"></textarea>
       <label data-t="notes"></label><ol id="notes"></ol>
       <p class="hint" data-t="hint"></p>
-      <label data-t="s3"></label><button id="bSend2" class="primary" data-t="send"></button><button id="bChat2" data-t="chat"></button><button id="bCopy2" data-t="copy"></button><button id="bCimg2" data-t="cimg1"></button>
+      <label data-t="s3"></label><button id="bSend2" class="primary" data-t="send"></button><button id="bChat2" data-t="chat"></button><button id="bCopy2" data-t="copyAll"></button><button id="bImgs2" data-t="imgsB"></button>
     </aside>
   </div>
 </section>
@@ -155,7 +155,8 @@ body.full #stage{position:fixed;inset:0;z-index:5;border-radius:0;border:0}
       <button id="bBig" data-t="bigB"></button>
       <button id="bSend" class="primary" data-t="send"></button>
       <button id="bChat" data-t="chat"></button>
-      <button id="bCopy" data-t="copy"></button>
+      <button id="bCopy" data-t="copyAll"></button>
+      <button id="bImgs" data-t="imgsB"></button>
       <button id="bDir" data-t="dir"></button>
       <button id="bDl" data-t="dlb"></button>
       <button id="bSess" data-t="sess"></button>
@@ -173,7 +174,7 @@ const CN={fr:['rouge','orange','vert','bleu','violet'],en:['red','orange','green
 const FONT='system-ui,"Segoe UI",sans-serif';
 const S={who:'',lang:'fr',steps:[],cur:0,tool:'pen',color:COL[0],view:1,live:false,mic:false,ready:Promise.resolve()};
 window.__S=S;
-const T={fr:{s1:'Montrer',s2:'Expliquer',s3:'Prompt',who:'Ton nom',snapS:'Capture',stopS:'Fin',pickProj:'— Choisir un projet —',chat:'Ouvrir dans Claude (chat) avec le prompt',cimg:'Copier l\'image ',pasteB:'Coller l\'image (Ctrl+V)',fileB:'Choisir un fichier',noclip:'Aucune image dans le presse-papiers.',fitB:'Ajuster',bigB:'Agrandir l\'image / modifier',pop:'Fenêtre d\'édition',closeW:'Fermer la fenêtre',cimg1:'Copier l\'image',popBlocked:'Autorise les pop-ups pour ce site.',addProj:'➕ Ajouter mes dossiers de projets…',proj:'Projet : tape ou choisis dans la liste',root:'Choisir le dossier qui contient mes projets',liveHint:'Choisis l\'onglet, la fenêtre ou l\'écran à partager. Un petit bouton Capture et un bouton Fin flottent par-dessus.',ckOpen:'Ouvrir une session Claude à la fin',send:'Envoyer dans Claude Code',needProj:'Choisis d\'abord le projet.',full:'Plein écran',small:'Réduire',cap:'Capture d\'écran',
+const T={fr:{s1:'Montrer',s2:'Expliquer',s3:'Prompt',who:'Ton nom',snapS:'Capture',stopS:'Fin',pickProj:'— Choisir un projet —',chat:'Ouvrir dans Claude (chat) avec le prompt',cimg:'Copier l\'image ',copyAll:'Copier le prompt + les images',imgsB:'Copier seulement les images',allCopied:'Prompt et images copiés : colle avec Ctrl+V. Si seul le texte arrive, clique « Copier seulement les images » et colle encore.',pasteB:'Coller l\'image (Ctrl+V)',fileB:'Choisir un fichier',noclip:'Aucune image dans le presse-papiers.',fitB:'Ajuster',bigB:'Agrandir l\'image / modifier',pop:'Fenêtre d\'édition',closeW:'Fermer la fenêtre',cimg1:'Copier l\'image',popBlocked:'Autorise les pop-ups pour ce site.',addProj:'➕ Ajouter mes dossiers de projets…',proj:'Projet : tape ou choisis dans la liste',root:'Choisir le dossier qui contient mes projets',liveHint:'Choisis l\'onglet, la fenêtre ou l\'écran à partager. Un petit bouton Capture et un bouton Fin flottent par-dessus.',ckOpen:'Ouvrir une session Claude à la fin',send:'Envoyer dans Claude Code',needProj:'Choisis d\'abord le projet.',full:'Plein écran',small:'Réduire',cap:'Capture d\'écran',
 h1:'Montre ce que tu veux changer',sub1:'Aucune ligne à écrire. Choisis une façon de montrer, puis parle et dessine.',
 liveT:'Démonstration en direct',liveD:'Partage la fenêtre de ton application, utilise-la et parle. Chaque phrase devient une étape avec son image.',
 shotT:'Capture d\'écran',shotD:'Une image de ton application, à annoter juste après.',
@@ -190,7 +191,7 @@ copied:'Prompt copié',imgCopied:'Image copiée',copyImg:'Cliquer pour copier l\
 need:'Ajoute d\'abord une image.',noscreen:'Ce navigateur ne permet pas le partage d\'écran. Utilise Chrome ou Edge, ou colle une capture.',
 nosr:'Dictée indisponible dans ce navigateur. Utilise Chrome ou Edge, ou la dictée Windows (Win+H).',micdenied:'Micro refusé. Autorise-le dans le navigateur.',
 nodir:'Dossier indisponible dans ce navigateur : les fichiers sont téléchargés.',sayIt:'Dis à Claude Code : « Fais le retour du dossier ',bad:'Fichier de session illisible.'},
-en:{s1:'Show',s2:'Explain',s3:'Prompt',who:'Your name',snapS:'Capture',stopS:'Finish',pickProj:'— Pick a project —',chat:'Open in Claude (chat) with the prompt',cimg:'Copy image ',pasteB:'Paste image (Ctrl+V)',fileB:'Choose a file',noclip:'No image in the clipboard.',fitB:'Fit',bigB:'Enlarge image / edit',pop:'Editing window',closeW:'Close window',cimg1:'Copy image',popBlocked:'Allow pop-ups for this site.',addProj:'➕ Add my project folders…',proj:'Project: type or pick from the list',root:'Choose the folder that holds my projects',liveHint:'Pick the tab, window or screen to share. A small Capture button and a Finish button float on top.',ckOpen:'Open a Claude session at the end',send:'Send to Claude Code',needProj:'Pick the project first.',full:'Full screen',small:'Shrink',cap:'Screenshot',
+en:{s1:'Show',s2:'Explain',s3:'Prompt',who:'Your name',snapS:'Capture',stopS:'Finish',pickProj:'— Pick a project —',chat:'Open in Claude (chat) with the prompt',cimg:'Copy image ',copyAll:'Copy the prompt + images',imgsB:'Copy only the images',allCopied:'Prompt and images copied: paste with Ctrl+V. If only the text arrives, click "Copy only the images" and paste again.',pasteB:'Paste image (Ctrl+V)',fileB:'Choose a file',noclip:'No image in the clipboard.',fitB:'Fit',bigB:'Enlarge image / edit',pop:'Editing window',closeW:'Close window',cimg1:'Copy image',popBlocked:'Allow pop-ups for this site.',addProj:'➕ Add my project folders…',proj:'Project: type or pick from the list',root:'Choose the folder that holds my projects',liveHint:'Pick the tab, window or screen to share. A small Capture button and a Finish button float on top.',ckOpen:'Open a Claude session at the end',send:'Send to Claude Code',needProj:'Pick the project first.',full:'Full screen',small:'Shrink',cap:'Screenshot',
 h1:'Show what you want to change',sub1:'Nothing to write. Pick a way to show it, then talk and draw.',
 liveT:'Live demo',liveD:'Share your app window, use it and talk. Each sentence becomes a step with its picture.',
 shotT:'Screenshot',shotD:'One picture of your app, to mark up right after.',
@@ -333,6 +334,13 @@ function buildPrompt(){const fr=S.lang=='fr',n=S.steps.length,app=$('#ctx').valu
 async function buildOut(){$('#out').value=buildPrompt();$('#say').textContent='';const box=$('#thumbs');box.innerHTML='';
   for(const[i,st]of S.steps.entries()){const c=document.createElement('canvas');c.width=st.w;c.height=st.h;draw(c.getContext('2d'),st);st.blob=await new Promise(r=>c.toBlob(r,'image/png'));
     const b=document.createElement('button'),im=new Image();b.className='th';b.title=t('copyImg');im.src=URL.createObjectURL(st.blob);im.alt=fname(i);b.append(im,t('cimg')+(i+1));b.onclick=()=>copyImg(st.blob);box.append(b)}}
+async function sheet(){await S.ready;const W=Math.min(1600,Math.max(...S.steps.map(x=>x.w))),pad=40,L=S.steps.map(st=>{const k=Math.min(1,W/st.w);return{st,k,h:Math.round(st.h*k)}}),H=L.reduce((a,x)=>a+x.h+pad,0);
+  const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,W,H);let y=0;
+  L.forEach((o,i)=>{x.fillStyle='#16202b';x.font='700 24px '+FONT;x.textBaseline='middle';x.fillText('Image '+(i+1)+' — '+fname(i),8,y+pad/2);y+=pad;x.save();x.translate(0,y);x.scale(o.k,o.k);draw(x,o.st);x.restore();y+=o.h});
+  return new Promise(r=>c.toBlob(r,'image/png'))}
+async function copyAll(){S.ready=buildOut();await S.ready;const txt=$('#out').value,img=await sheet();
+  try{await navigator.clipboard.write([new ClipboardItem({'text/plain':new Blob([txt],{type:'text/plain'}),'image/png':img})]);toast(t('allCopied'))}catch(e){copyText(txt,t('copied'))}}
+async function copyImgs(){S.ready=buildOut();copyImg(await sheet())}
 async function copyImg(blob){try{await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);toast(t('imgCopied'))}catch(e){toast(t('copyFail'))}}
 async function copyText(x,msg){try{await navigator.clipboard.writeText(x);if(msg)toast(msg)}catch(e){$('#out').select();toast(t('copyFail'))}}
 function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),8000)}
@@ -380,7 +388,7 @@ $('#bDel').onclick=()=>{closePop(false);S.steps.splice(S.cur,1);S.cur=Math.max(0
 $('#said').oninput=e=>{const st=S.steps[S.cur];if(st)st.said=e.target.value};
 $('#popOk').onclick=()=>closePop(true);$('#popDel').onclick=()=>{const st=S.steps[S.cur];if(pop&&pop.item)drop(st,pop.item);closePop(false)};
 $('#popt').onkeydown=e=>{if(e.key=='Enter'&&!e.shiftKey){e.preventDefault();closePop(true)}if(e.key=='Escape')closePop(false)};
-$('#bCopy').onclick=()=>copyText($('#out').value,t('copied'));$('#bDir').onclick=e=>saveDir(e.shiftKey);$('#bDl').onclick=dlAll;$('#bSess').onclick=saveSess;
+$('#bCopy').onclick=copyAll;$('#bImgs').onclick=copyImgs;$('#bDir').onclick=e=>saveDir(e.shiftKey);$('#bDl').onclick=dlAll;$('#bSess').onclick=saveSess;
 addEventListener('paste',e=>{const f=[...(e.clipboardData?e.clipboardData.files:[])];if(f.some(x=>x.type.startsWith('image/'))){e.preventDefault();loadFiles(f)}});
 addEventListener('dragover',e=>e.preventDefault());addEventListener('drop',e=>{e.preventDefault();const f=[...e.dataTransfer.files];const j=f.find(x=>x.name.endsWith('.json'));j?openSess(j):loadFiles(f)});
 addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key=='z'&&S.view==2&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){e.preventDefault();undo()}});
@@ -422,8 +430,8 @@ addEventListener('keydown',e=>{if(e.key=='Escape'&&S.full&&!pop&&!S.ed)setFull(f
 applyLang();ui();
 function openEditor(){const w=Math.round(screen.availWidth*.94),h=Math.round(screen.availHeight*.9),u=location.href.split('#')[0]+'#edit';
   const win=window.open(u,'md_edit',`popup=yes,width=${w},height=${h},left=${Math.round((screen.availWidth-w)/2)},top=20`);if(!win)toast(t('popBlocked'))}
-$('#bCopy2').onclick=async()=>{S.ready=buildOut();await S.ready;copyText($('#out').value,t('copied'))};
-$('#bCimg2').onclick=async()=>{const st=S.steps[S.cur];if(!st)return;const c=document.createElement('canvas');c.width=st.w;c.height=st.h;draw(c.getContext('2d'),st);copyImg(await new Promise(r=>c.toBlob(r,'image/png')))};
+$('#bCopy2').onclick=copyAll;$('#bImgs2').onclick=copyImgs;
+window._ci=async()=>{const st=S.steps[S.cur];if(!st)return;const c=document.createElement('canvas');c.width=st.w;c.height=st.h;draw(c.getContext('2d'),st);copyImg(await new Promise(r=>c.toBlob(r,'image/png')))};
 $('#bSend2').onclick=sendClaude;$('#bBig').onclick=openEditor;
 $('#bZp').onclick=()=>zoom((S.zoom||1)*1.25);$('#bZm').onclick=()=>zoom((S.zoom||1)/1.25);$('#bZ0').onclick=()=>zoom(1);
 $('#stage').addEventListener('wheel',e=>{if(!e.ctrlKey)return;e.preventDefault();zoom((S.zoom||1)*(e.deltaY<0?1.15:1/1.15))},{passive:false});
