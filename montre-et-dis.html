@@ -79,13 +79,15 @@ h1{font-size:26px;line-height:1.2;margin:16px 0 0;letter-spacing:-.02em;text-wra
 #v2 .tools{position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:8;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 8px;box-shadow:0 6px 24px rgba(0,0,0,.28);max-width:calc(100vw - 16px)}
 #grip{cursor:move;touch-action:none;padding:2px 6px;color:var(--muted);user-select:none;font-size:20px}
 .tools .interim{max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:0}
+#live{position:fixed;left:-9999px;top:0;width:320px;display:block}
+.mbox select{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:10px;font-size:16px}
 body.full header{display:none}
 body.full #stage{position:fixed;inset:0;z-index:5;border-radius:0;border:0}
 </style>
 </head>
 <body>
 <header>
-  <span class="brand">Montre et dis <small style="font-weight:400;color:var(--muted)">v3</small></span>
+  <span class="brand">Montre et dis <small style="font-weight:400;color:var(--muted)">v4</small></span>
   <nav>
     <button data-go="1"><b>1</b><span data-t="s1"></span></button>
     <button data-go="2"><b>2</b><span data-t="s2"></span></button>
@@ -98,15 +100,15 @@ body.full #stage{position:fixed;inset:0;z-index:5;border-radius:0;border:0}
 <section id="v1"><div class="center">
   <div id="modal" role="dialog" aria-labelledby="mh"><div class="mbox">
     <h1 id="mh" data-t="h1"></h1>
-    <input id="proj" data-tp="proj" autocomplete="off" list="projList"><datalist id="projList"></datalist>
+    <input id="proj" data-tp="proj" autocomplete="off" list="projList"><datalist id="projList"></datalist><select id="projSel" hidden></select>
     <button class="link" id="bRoot" data-t="root"></button>
     <input id="ctx" data-tp="ctx" autocomplete="off">
-    <label class="ck"><input type="checkbox" id="ckOpen" checked><span data-t="ckOpen"></span></label>
     <button class="primary big" id="bLive" data-t="liveT"></button>
+    <div class="row" style="gap:8px"><button id="bSnap2" data-t="snapS" disabled style="flex:1"></button><button id="bStop2" class="primary" data-t="stopS" disabled style="flex:1"></button></div><p class="hint" id="liveSt"></p>
     <p class="hint" data-t="liveHint"></p>
     <button class="link" id="bOpen" data-t="open"></button>
   </div></div>
-  <div id="live" hidden>
+  <div id="live" aria-hidden="true">
     <video id="vid" muted playsinline></video>
     <div class="acts">
       <div><span class="dot"></span><strong data-t="rec"></strong> · <span id="count">0</span> <span data-t="steps"></span></div>
@@ -147,6 +149,7 @@ body.full #stage{position:fixed;inset:0;z-index:5;border-radius:0;border:0}
     <textarea id="out" spellcheck="false"></textarea>
     <div class="acts">
       <button id="bSend" class="primary" data-t="send"></button>
+      <button id="bChat" data-t="chat"></button>
       <button id="bCopy" data-t="copy"></button>
       <button id="bDir" data-t="dir"></button>
       <button id="bDl" data-t="dlb"></button>
@@ -164,7 +167,7 @@ const COL=['#ff3b30','#ff9f0a','#30d158','#0a84ff','#bf5af2'];
 const CN={fr:['rouge','orange','vert','bleu','violet'],en:['red','orange','green','blue','purple']};
 const FONT='system-ui,"Segoe UI",sans-serif';
 const S={who:'',lang:'fr',steps:[],cur:0,tool:'pen',color:COL[0],view:1,live:false,mic:false,ready:Promise.resolve()};
-const T={fr:{s1:'Montrer',s2:'Expliquer',s3:'Prompt',who:'Ton nom',proj:'Projet : tape ou choisis dans la liste',root:'Choisir le dossier qui contient mes projets',liveHint:'Choisis l\'onglet, la fenêtre ou l\'écran à partager. Un petit bouton Capture et un bouton Fin flottent par-dessus.',ckOpen:'Ouvrir une session Claude à la fin',send:'Envoyer à Claude Code',needProj:'Écris d\'abord le nom du projet.',full:'Plein écran',small:'Réduire',cap:'Capture d\'écran',
+const T={fr:{s1:'Montrer',s2:'Expliquer',s3:'Prompt',who:'Ton nom',snapS:'Capture',stopS:'Fin',pickProj:'— Choisir un projet —',chat:'Ouvrir dans Claude (chat) avec le prompt',cimg:'Copier l\'image ',proj:'Projet : tape ou choisis dans la liste',root:'Choisir le dossier qui contient mes projets',liveHint:'Choisis l\'onglet, la fenêtre ou l\'écran à partager. Un petit bouton Capture et un bouton Fin flottent par-dessus.',ckOpen:'Ouvrir une session Claude à la fin',send:'Envoyer dans Claude Code',needProj:'Choisis d\'abord le projet.',full:'Plein écran',small:'Réduire',cap:'Capture d\'écran',
 h1:'Montre ce que tu veux changer',sub1:'Aucune ligne à écrire. Choisis une façon de montrer, puis parle et dessine.',
 liveT:'Démonstration en direct',liveD:'Partage la fenêtre de ton application, utilise-la et parle. Chaque phrase devient une étape avec son image.',
 shotT:'Capture d\'écran',shotD:'Une image de ton application, à annoter juste après.',
@@ -176,12 +179,12 @@ said:'Ce que tu as dit',saidPh:'Active le micro et parle, ou écris ici.',notes:
 phNote:'Ta note (tu peux la dicter)',phText:'Texte à écrire sur l\'image',ok:'OK',rm:'Supprimer',
 h3:'Ton prompt est prêt',sub3:'Relis-le si tu veux, puis envoie-le à Claude.',
 copy:'Copier le prompt',dir:'Enregistrer dans le dossier du projet',dlb:'Télécharger les fichiers',sess:'Enregistrer la session pour quelqu\'un d\'autre',
-how:'Envoyer à Claude Code : enregistre le prompt et les images dans le dossier du projet, copie la phrase à dire et ouvre Claude Code. Claude (chat) : copie le prompt, puis clique chaque image pour la copier.',
+how:'Envoyer dans Claude Code : enregistre le prompt et les images dans le dossier du projet, copie la phrase à dire et ouvre Claude Code. Chat : le prompt s\'ouvre dans Claude, puis colle chaque image avec « Copier l\'image ».',
 copied:'Prompt copié',imgCopied:'Image copiée',copyImg:'Cliquer pour copier l\'image',copyFail:'Copie impossible ici. Utilise « Télécharger les fichiers ».',
 need:'Ajoute d\'abord une image.',noscreen:'Ce navigateur ne permet pas le partage d\'écran. Utilise Chrome ou Edge, ou colle une capture.',
 nosr:'Dictée indisponible dans ce navigateur. Utilise Chrome ou Edge, ou la dictée Windows (Win+H).',micdenied:'Micro refusé. Autorise-le dans le navigateur.',
 nodir:'Dossier indisponible dans ce navigateur : les fichiers sont téléchargés.',sayIt:'Dis à Claude Code : « Fais le retour du dossier ',bad:'Fichier de session illisible.'},
-en:{s1:'Show',s2:'Explain',s3:'Prompt',who:'Your name',proj:'Project: type or pick from the list',root:'Choose the folder that holds my projects',liveHint:'Pick the tab, window or screen to share. A small Capture button and a Finish button float on top.',ckOpen:'Open a Claude session at the end',send:'Send to Claude Code',needProj:'Write the project name first.',full:'Full screen',small:'Shrink',cap:'Screenshot',
+en:{s1:'Show',s2:'Explain',s3:'Prompt',who:'Your name',snapS:'Capture',stopS:'Finish',pickProj:'— Pick a project —',chat:'Open in Claude (chat) with the prompt',cimg:'Copy image ',proj:'Project: type or pick from the list',root:'Choose the folder that holds my projects',liveHint:'Pick the tab, window or screen to share. A small Capture button and a Finish button float on top.',ckOpen:'Open a Claude session at the end',send:'Send to Claude Code',needProj:'Pick the project first.',full:'Full screen',small:'Shrink',cap:'Screenshot',
 h1:'Show what you want to change',sub1:'Nothing to write. Pick a way to show it, then talk and draw.',
 liveT:'Live demo',liveD:'Share your app window, use it and talk. Each sentence becomes a step with its picture.',
 shotT:'Screenshot',shotD:'One picture of your app, to mark up right after.',
@@ -193,7 +196,7 @@ said:'What you said',saidPh:'Turn the mic on and talk, or type here.',notes:'Not
 phNote:'Your note (you can dictate it)',phText:'Text to write on the image',ok:'OK',rm:'Delete',
 h3:'Your prompt is ready',sub3:'Read it over if you like, then send it to Claude.',
 copy:'Copy the prompt',dir:'Save to the project folder',dlb:'Download the files',sess:'Save the session for someone else',
-how:'Send to Claude Code: saves the prompt and images in the project folder, copies the sentence to say and opens Claude Code. Claude (chat): copy the prompt, then click each image to copy it.',
+how:'Send to Claude Code: saves the prompt and images in the project folder, copies the sentence to say and opens Claude Code. Chat: the prompt opens in Claude, then paste each image with "Copy image".',
 copied:'Prompt copied',imgCopied:'Image copied',copyImg:'Click to copy the image',copyFail:'Cannot copy here. Use "Download the files".',
 need:'Add an image first.',noscreen:'This browser cannot share the screen. Use Chrome or Edge, or paste a screenshot.',
 nosr:'Dictation is not available in this browser. Use Chrome or Edge, or Windows dictation (Win+H).',micdenied:'Mic refused. Allow it in the browser.',
@@ -204,7 +207,10 @@ function keep(k,v){try{localStorage.setItem(k,v)}catch(e){}}
 function applyLang(){document.documentElement.lang=S.lang;$$('[data-t]').forEach(e=>e.textContent=t(e.dataset.t));$$('[data-tp]').forEach(e=>e.placeholder=t(e.dataset.tp));$('#bFull').textContent=t(S.full?'small':'full');$('#lang').textContent=S.lang=='fr'?'EN':'FR'}
 let tt;function toast(m){const e=$('#toast');e.textContent=m;e.hidden=false;clearTimeout(tt);tt=setTimeout(()=>e.hidden=true,4500)}
 function ui(){$$('[data-tool]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tool==S.tool));$$('.sw').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c==S.color));$('#bMic').setAttribute('aria-pressed',S.mic);$$('nav button').forEach(b=>b.setAttribute('aria-current',b.dataset.go==S.view));if(!S.mic)$$('.interim').forEach(e=>e.textContent='')}
-function go(v){if(v>1&&!S.steps.length){toast(t('need'));v=1}closePop(true);if(v!=2&&S.full)setFull(false);S.view=v;[1,2,3].forEach(i=>$('#v'+i).hidden=i!=v);ui();if(v==2)renderAll();if(v==3)S.ready=buildOut()}
+function liveUI(on){$('#bSnap2').disabled=$('#bStop2').disabled=!on;$('#bLive').disabled=on;$('#liveSt').textContent=on?S.steps.length+' '+t('steps'):''}
+function bigWin(){try{moveTo(0,0);resizeTo(screen.availWidth,screen.availHeight)}catch(e){}}
+function smallWin(){try{resizeTo(480,720)}catch(e){}}
+function go(v){if(v>1&&!S.steps.length){toast(t('need'));v=1}closePop(true);if(v!=2&&S.full)setFull(false);S.view=v;[1,2,3].forEach(i=>$('#v'+i).hidden=i!=v);ui();if(v==2){bigWin();renderAll()}if(v==1)smallWin();if(v==3)S.ready=buildOut()}
 
 /* ---------- images ---------- */
 function addStep(src,said){const w=src.videoWidth||src.naturalWidth||src.width,h=src.videoHeight||src.naturalHeight||src.height;if(!w||!h)return null;
@@ -225,7 +231,7 @@ function diff(a,b){let d=0;for(let i=0;i<a.length;i+=4)d+=Math.abs(a[i]-b[i])+Ma
 async function snap(text){if(!track)return;const f=await grab(),sg=sig(f),last=S.steps[S.steps.length-1];
   if(text&&last&&lastSig&&sg&&diff(sg,lastSig)<2)last.said+=(last.said?'\n':'')+text;   // même écran : la phrase rejoint l'étape
   else if(addStep(f,text||''))lastSig=sg;
-  $('#count').textContent=S.steps.length;pipSet('n',S.steps.length+' '+t('steps'))}
+  $('#count').textContent=S.steps.length;$('#liveSt').textContent=S.steps.length+' '+t('steps');pipSet('n',S.steps.length+' '+t('steps'))}
 let pip=null;
 function pipSet(id,x){try{if(pip)pip.document.getElementById(id).textContent=x}catch(e){}}
 function closePip(){try{pip&&pip.close()}catch(e){}pip=null}
@@ -236,8 +242,8 @@ async function openPip(){if(!window.documentPictureInPicture)return;   // petite
     pipSet('s',t('snap'));pipSet('e',t('stop'));
     d.getElementById('s').onclick=()=>{q=q.then(()=>snap()).catch(()=>{})};d.getElementById('e').onclick=()=>stopLive();
     pip.addEventListener('pagehide',()=>{pip=null})}catch(e){pip=null}}
-async function startLive(){if(!S.proj){toast(t('needProj'));$('#proj').focus();return}await openPip();if(!await share()){closePip();return}S.live=true;lastSig=null;track.onended=stopLive;$('#live').hidden=false;$('#modal').hidden=true;await snap();micOn();ui()}
-function stopLive(){if(!S.live)return;S.live=false;closePip();unshare();micOff();$('#live').hidden=true;$('#modal').hidden=false;if(S.steps.length)go(2)}
+async function startLive(){if(!S.proj){toast(t('needProj'));($('#projSel').hidden?$('#proj'):$('#projSel')).focus();return}await openPip();if(!await share()){closePip();return}S.live=true;lastSig=null;track.onended=stopLive;liveUI(true);await snap();micOn();ui()}
+function stopLive(){if(!S.live)return;S.live=false;closePip();unshare();micOff();liveUI(false);if(S.steps.length)go(2)}
 
 /* ---------- voix ---------- */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null;
@@ -319,7 +325,7 @@ function buildPrompt(){const fr=S.lang=='fr',n=S.steps.length,app=$('#ctx').valu
   return L.join('\n')}
 async function buildOut(){$('#out').value=buildPrompt();$('#say').textContent='';const box=$('#thumbs');box.innerHTML='';
   for(const[i,st]of S.steps.entries()){const c=document.createElement('canvas');c.width=st.w;c.height=st.h;draw(c.getContext('2d'),st);st.blob=await new Promise(r=>c.toBlob(r,'image/png'));
-    const b=document.createElement('button'),im=new Image();b.className='th';b.title=t('copyImg');im.src=URL.createObjectURL(st.blob);im.alt=fname(i);b.append(im,fname(i));b.onclick=()=>copyImg(st.blob);box.append(b)}}
+    const b=document.createElement('button'),im=new Image();b.className='th';b.title=t('copyImg');im.src=URL.createObjectURL(st.blob);im.alt=fname(i);b.append(im,t('cimg')+(i+1));b.onclick=()=>copyImg(st.blob);box.append(b)}}
 async function copyImg(blob){try{await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);toast(t('imgCopied'))}catch(e){toast(t('copyFail'))}}
 async function copyText(x,msg){try{await navigator.clipboard.writeText(x);if(msg)toast(msg)}catch(e){$('#out').select();toast(t('copyFail'))}}
 function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),8000)}
@@ -327,7 +333,13 @@ async function dlAll(){await S.ready;dl(new Blob([$('#out').value],{type:'text/m
 const dk=()=>'dir:'+(S.proj||'');
 const idb=(m,k,v)=>new Promise((ok,no)=>{const o=indexedDB.open('montre-et-dis',1);o.onupgradeneeded=()=>o.result.createObjectStore('k');o.onerror=()=>no(o.error);
   o.onsuccess=()=>{const s=o.result.transaction('k','readwrite').objectStore('k'),r=m=='get'?s.get(k):s.put(v,k);r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)}});
-async function saveDir(pick){await S.ready;if(!window.showDirectoryPicker){toast(t('nodir'));await dlAll();return true}
+const b64=blob=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result.split(',')[1]);f.readAsDataURL(blob)});
+async function saveSrv(){try{const imgs=[];for(const[i,st]of S.steps.entries())imgs.push({name:fname(i),data:await b64(st.blob)});
+    const r=await fetch('/save',{method:'POST',headers:{'X-MD':'1','Content-Type':'application/json'},body:JSON.stringify({dir:S.projPath,prompt:$('#out').value,images:imgs})});
+    if(!r.ok)throw new Error(await r.text());const j=await r.json(),where=j.where;$('#say').textContent=t('sayIt')+where+(S.lang=='fr'?' »':'"');
+    copyText((S.lang=='fr'?'Lis ':'Read ')+where+'/prompt.md'+(S.lang=='fr'?' et ses images, puis exécute.':' and its images, then do it.'));toast(S.proj+'/'+where+' ✓');return true}
+  catch(e){toast(String(e.message||e));return false}}
+async function saveDir(pick){await S.ready;if(S.srv&&S.projPath)return saveSrv();if(!window.showDirectoryPicker){toast(t('nodir'));await dlAll();return true}
   let dir=null;if(!pick){if(S.projDir)dir=S.projDir;else try{dir=await idb('get',dk())}catch(e){}}
   try{if(dir&&await dir.requestPermission({mode:'readwrite'})!='granted')dir=null}catch(e){dir=null}
   try{if(!dir){dir=await showDirectoryPicker({mode:'readwrite'});try{await idb('put',dk(),dir)}catch(e){}}
@@ -338,7 +350,7 @@ async function saveDir(pick){await S.ready;if(!window.showDirectoryPicker){toast
     const where=`retours/${stamp}`;$('#say').textContent=t('sayIt')+where+(S.lang=='fr'?' »':'"');
     copyText((S.lang=='fr'?'Lis ':'Read ')+where+'/prompt.md'+(S.lang=='fr'?' et ses images, puis exécute.':' and its images, then do it.'));toast(dir.name+'/'+where+' ✓');return true
   }catch(e){if(e.name!='AbortError')toast(String(e.message||e));return false}}
-async function sendClaude(){const w=$('#ckOpen').checked?window.open('about:blank','_blank'):null;const ok=await saveDir(false);if(w){if(ok)w.location.href='https://claude.ai/code';else w.close()}}
+async function sendClaude(){const w=window.open('about:blank','_blank');const ok=await saveDir(false);if(w){if(ok)w.location.href='https://claude.ai/code';else w.close()}}
 function saveSess(){const data={v:1,ctx:$('#ctx').value,steps:S.steps.map(st=>({img:st.cv.toDataURL('image/png'),said:st.said,shapes:st.shapes,notes:st.notes}))};
   dl(new Blob([JSON.stringify(data)],{type:'application/json'}),'session-montre-et-dis.json')}
 async function openSess(file){try{const d=JSON.parse(await file.text());if(d.ctx&&!$('#ctx').value)$('#ctx').value=d.ctx;
@@ -373,9 +385,18 @@ async function loadRoot(ask){if(!window.showDirectoryPicker)return;let r=null;tr
   if(r)try{let g=await r.queryPermission({mode:'readwrite'});if(g!='granted'&&ask)g=await r.requestPermission({mode:'readwrite'});if(g=='granted'){root=r;await listProjects();pickProj()}}catch(e){}}
 $('#bRoot').onclick=async()=>{if(!window.showDirectoryPicker){toast(t('nodir'));return}try{const r=await showDirectoryPicker({mode:'readwrite',startIn:'documents'});root=r;try{await idb('put','root',r)}catch(e){}await listProjects();pickProj();$('#proj').focus()}catch(e){}};
 loadRoot(false);
+function selProj(){const o=$('#projSel');S.projPath=o.value;S.proj=o.value?o.selectedOptions[0].textContent:'';keep('projp',o.value)}
+async function loadSrv(){try{const r=await fetch('/projects');if(!r.ok||!(r.headers.get('content-type')||'').includes('json'))return;const L=await r.json(),o=$('#projSel');S.srv=true;
+  o.innerHTML='';o.append(new Option(t('pickProj'),''));L.forEach(x=>o.append(new Option(x.name,x.path)));o.hidden=false;$('#proj').hidden=true;$('#bRoot').hidden=true;
+  let last='';try{last=localStorage.getItem('projp')||''}catch(e){}if(L.some(x=>x.path==last))o.value=last;selProj();o.onchange=selProj}catch(e){}}
+loadSrv();
+$('#bSnap2').onclick=()=>{q=q.then(()=>snap()).catch(()=>{})};$('#bStop2').onclick=stopLive;
+$('#bChat').onclick=async()=>{await S.ready;const x=$('#out').value,u='https://claude.ai/new?q='+encodeURIComponent(x);if(u.length<7000)window.open(u,'_blank');else{copyText(x,t('copied'));window.open('https://claude.ai/new','_blank')}};
 function setFull(on){S.full=on;document.body.classList.toggle('full',on);$('#bFull').textContent=t(on?'small':'full');
+  try{if(on)document.documentElement.requestFullscreen().then(()=>{S.nat=true}).catch(()=>{});else{S.nat=false;if(document.fullscreenElement)document.exitFullscreen().catch(()=>{})}}catch(e){}
   requestAnimationFrame(()=>{if(S.view==2)fit()})}
 cv.addEventListener('dblclick',()=>setFull(!S.full));
+addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&S.nat&&S.full){S.nat=false;setFull(false)}});
 addEventListener('keydown',e=>{if(e.key=='Escape'&&S.full&&!pop)setFull(false)});
 (()=>{const tb=$('#tb'),g=$('#grip');let d=null;
   g.onpointerdown=e=>{const r=tb.getBoundingClientRect();tb.style.transform='none';tb.style.left=r.left+'px';tb.style.top=r.top+'px';d=[e.clientX-r.left,e.clientY-r.top];g.setPointerCapture(e.pointerId)};
