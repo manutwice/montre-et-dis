@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Montre et dis</title>
+<meta http-equiv="Cache-Control" content="no-cache">
 <style>
 :root{/* plan : bandeau de 3 étapes en haut, une seule zone de travail dessous */
 --bg:#eef1f4;--surface:#fff;--ink:#16202b;--muted:#5b6876;--line:#d3dae2;--accent:#2f5bea;--on:#fff;--rec:#e5383b;
@@ -87,7 +88,7 @@ body.full #stage{position:fixed;inset:0;z-index:5;border-radius:0;border:0}
 </head>
 <body>
 <header>
-  <span class="brand">Montre et dis <small style="font-weight:400;color:var(--muted)">v4</small></span>
+  <span class="brand">Montre et dis <small style="font-weight:400;color:var(--muted)">v5</small></span>
   <nav>
     <button data-go="1"><b>1</b><span data-t="s1"></span></button>
     <button data-go="2"><b>2</b><span data-t="s2"></span></button>
@@ -167,7 +168,7 @@ const COL=['#ff3b30','#ff9f0a','#30d158','#0a84ff','#bf5af2'];
 const CN={fr:['rouge','orange','vert','bleu','violet'],en:['red','orange','green','blue','purple']};
 const FONT='system-ui,"Segoe UI",sans-serif';
 const S={who:'',lang:'fr',steps:[],cur:0,tool:'pen',color:COL[0],view:1,live:false,mic:false,ready:Promise.resolve()};
-const T={fr:{s1:'Montrer',s2:'Expliquer',s3:'Prompt',who:'Ton nom',snapS:'Capture',stopS:'Fin',pickProj:'— Choisir un projet —',chat:'Ouvrir dans Claude (chat) avec le prompt',cimg:'Copier l\'image ',proj:'Projet : tape ou choisis dans la liste',root:'Choisir le dossier qui contient mes projets',liveHint:'Choisis l\'onglet, la fenêtre ou l\'écran à partager. Un petit bouton Capture et un bouton Fin flottent par-dessus.',ckOpen:'Ouvrir une session Claude à la fin',send:'Envoyer dans Claude Code',needProj:'Choisis d\'abord le projet.',full:'Plein écran',small:'Réduire',cap:'Capture d\'écran',
+const T={fr:{s1:'Montrer',s2:'Expliquer',s3:'Prompt',who:'Ton nom',snapS:'Capture',stopS:'Fin',pickProj:'— Choisir un projet —',chat:'Ouvrir dans Claude (chat) avec le prompt',cimg:'Copier l\'image ',addProj:'➕ Ajouter mes dossiers de projets…',proj:'Projet : tape ou choisis dans la liste',root:'Choisir le dossier qui contient mes projets',liveHint:'Choisis l\'onglet, la fenêtre ou l\'écran à partager. Un petit bouton Capture et un bouton Fin flottent par-dessus.',ckOpen:'Ouvrir une session Claude à la fin',send:'Envoyer dans Claude Code',needProj:'Choisis d\'abord le projet.',full:'Plein écran',small:'Réduire',cap:'Capture d\'écran',
 h1:'Montre ce que tu veux changer',sub1:'Aucune ligne à écrire. Choisis une façon de montrer, puis parle et dessine.',
 liveT:'Démonstration en direct',liveD:'Partage la fenêtre de ton application, utilise-la et parle. Chaque phrase devient une étape avec son image.',
 shotT:'Capture d\'écran',shotD:'Une image de ton application, à annoter juste après.',
@@ -184,7 +185,7 @@ copied:'Prompt copié',imgCopied:'Image copiée',copyImg:'Cliquer pour copier l\
 need:'Ajoute d\'abord une image.',noscreen:'Ce navigateur ne permet pas le partage d\'écran. Utilise Chrome ou Edge, ou colle une capture.',
 nosr:'Dictée indisponible dans ce navigateur. Utilise Chrome ou Edge, ou la dictée Windows (Win+H).',micdenied:'Micro refusé. Autorise-le dans le navigateur.',
 nodir:'Dossier indisponible dans ce navigateur : les fichiers sont téléchargés.',sayIt:'Dis à Claude Code : « Fais le retour du dossier ',bad:'Fichier de session illisible.'},
-en:{s1:'Show',s2:'Explain',s3:'Prompt',who:'Your name',snapS:'Capture',stopS:'Finish',pickProj:'— Pick a project —',chat:'Open in Claude (chat) with the prompt',cimg:'Copy image ',proj:'Project: type or pick from the list',root:'Choose the folder that holds my projects',liveHint:'Pick the tab, window or screen to share. A small Capture button and a Finish button float on top.',ckOpen:'Open a Claude session at the end',send:'Send to Claude Code',needProj:'Pick the project first.',full:'Full screen',small:'Shrink',cap:'Screenshot',
+en:{s1:'Show',s2:'Explain',s3:'Prompt',who:'Your name',snapS:'Capture',stopS:'Finish',pickProj:'— Pick a project —',chat:'Open in Claude (chat) with the prompt',cimg:'Copy image ',addProj:'➕ Add my project folders…',proj:'Project: type or pick from the list',root:'Choose the folder that holds my projects',liveHint:'Pick the tab, window or screen to share. A small Capture button and a Finish button float on top.',ckOpen:'Open a Claude session at the end',send:'Send to Claude Code',needProj:'Pick the project first.',full:'Full screen',small:'Shrink',cap:'Screenshot',
 h1:'Show what you want to change',sub1:'Nothing to write. Pick a way to show it, then talk and draw.',
 liveT:'Live demo',liveD:'Share your app window, use it and talk. Each sentence becomes a step with its picture.',
 shotT:'Screenshot',shotD:'One picture of your app, to mark up right after.',
@@ -340,7 +341,7 @@ async function saveSrv(){try{const imgs=[];for(const[i,st]of S.steps.entries())i
     copyText((S.lang=='fr'?'Lis ':'Read ')+where+'/prompt.md'+(S.lang=='fr'?' et ses images, puis exécute.':' and its images, then do it.'));toast(S.proj+'/'+where+' ✓');return true}
   catch(e){toast(String(e.message||e));return false}}
 async function saveDir(pick){await S.ready;if(S.srv&&S.projPath)return saveSrv();if(!window.showDirectoryPicker){toast(t('nodir'));await dlAll();return true}
-  let dir=null;if(!pick){if(S.projDir)dir=S.projDir;else try{dir=await idb('get',dk())}catch(e){}}
+  let dir=null;if(!pick){if(S.projH)dir=S.projH;else try{dir=await idb('get',dk())}catch(e){}}
   try{if(dir&&await dir.requestPermission({mode:'readwrite'})!='granted')dir=null}catch(e){dir=null}
   try{if(!dir){dir=await showDirectoryPicker({mode:'readwrite'});try{await idb('put',dk(),dir)}catch(e){}}
     const d=new Date(),z=n=>String(n).padStart(2,'0'),stamp=`${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}_${z(d.getHours())}-${z(d.getMinutes())}-${z(d.getSeconds())}`;
@@ -389,7 +390,17 @@ function selProj(){const o=$('#projSel');S.projPath=o.value;S.proj=o.value?o.sel
 async function loadSrv(){try{const r=await fetch('/projects');if(!r.ok||!(r.headers.get('content-type')||'').includes('json'))return;const L=await r.json(),o=$('#projSel');S.srv=true;
   o.innerHTML='';o.append(new Option(t('pickProj'),''));L.forEach(x=>o.append(new Option(x.name,x.path)));o.hidden=false;$('#proj').hidden=true;$('#bRoot').hidden=true;
   let last='';try{last=localStorage.getItem('projp')||''}catch(e){}if(L.some(x=>x.path==last))o.value=last;selProj();o.onchange=selProj}catch(e){}}
-loadSrv();
+async function pdb(){try{return(await idb('get','projs'))||[]}catch(e){return[]}}
+async function addProjects(){const r=await showDirectoryPicker({mode:'readwrite',startIn:'documents'}),L=await pdb();
+  const add=(n,h)=>{if(!L.some(x=>x.name==n))L.push({name:n,handle:h})};add(r.name,r);
+  for await(const[n,h]of r.entries())if(h.kind=='directory'&&n[0]!='.'&&n!='node_modules')add(r.name+'/'+n,h);
+  L.sort((a,b)=>a.name.localeCompare(b.name,'fr'));await idb('put','projs',L)}
+async function fillSel(){const o=$('#projSel'),L=await pdb();S.plist=L;o.innerHTML='';o.append(new Option(t('pickProj'),''));L.forEach((x,i)=>o.append(new Option(x.name,i)));o.append(new Option(t('addProj'),'+'));
+  let last='';try{last=localStorage.getItem('projn')||''}catch(e){}const k=L.findIndex(x=>x.name==last);if(k>=0){o.value=k;S.proj=L[k].name;S.projH=L[k].handle}else{o.value='';S.proj='';S.projH=null}}
+function initPicker(){if(!window.showDirectoryPicker)return;const o=$('#projSel');o.hidden=false;$('#proj').hidden=true;$('#bRoot').hidden=true;fillSel();
+  o.onchange=async()=>{if(o.value=='+'){try{await addProjects()}catch(e){}await fillSel();return}
+    if(o.value===''){S.proj='';S.projH=null;return}const x=S.plist[+o.value];S.proj=x.name;S.projH=x.handle;keep('projn',x.name)}}
+loadSrv().then(()=>{if(!S.srv)initPicker()});
 $('#bSnap2').onclick=()=>{q=q.then(()=>snap()).catch(()=>{})};$('#bStop2').onclick=stopLive;
 $('#bChat').onclick=async()=>{await S.ready;const x=$('#out').value,u='https://claude.ai/new?q='+encodeURIComponent(x);if(u.length<7000)window.open(u,'_blank');else{copyText(x,t('copied'));window.open('https://claude.ai/new','_blank')}};
 function setFull(on){S.full=on;document.body.classList.toggle('full',on);$('#bFull').textContent=t(on?'small':'full');
